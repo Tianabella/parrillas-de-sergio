@@ -510,7 +510,7 @@ body { font-size: 17px; }
   .lamina-der .lamina-texto { margin-left: 0; margin-right: max(32px, calc((100vw - var(--ancho)) / 2)); }
 }
 .lamina-der .lamina-texto { max-width: 52%; }
-.lamina-der:last-child .lamina-foto { object-position: 0% 60%; transform: scale(.86) translateX(-24%); }
+.lamina-der:last-child .lamina-foto { object-position: 25% center; transform: none; -webkit-mask-image: none; mask-image: none; }
 /* Sin buscador: la carta es corta */
 .buscador { display: none !important; }
 

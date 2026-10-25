@@ -38,8 +38,7 @@
   };
   const dinero = (c, mon = monedaActual) => mon === 'ves' ? formatearVES(c) : formatearUSD(c);
   const dineroHTML = (cents, extraClase = '') => {
-    const claseVes = monedaActual === 'ves' ? ' modo-ves' : '';
-    return `<span class="precio-animado${claseVes}${extraClase ? ' ' + extraClase : ''}" data-cents="${cents}">${dinero(cents, monedaActual)}</span>`;
+    return `<span class="precio-animado${extraClase ? ' ' + extraClase : ''}" data-cents="${cents}">${dinero(cents, monedaActual)}</span>`;
   };
 
   // ── Textos ES / EN ──
@@ -484,8 +483,6 @@
     const nuevo = dinero(cents, monedaActual);
     if (el.textContent !== nuevo) {
       el.textContent = nuevo;
-      if (monedaActual === 'ves') el.classList.add('modo-ves');
-      else el.classList.remove('modo-ves');
       if (animar) { el.classList.remove('tic'); void el.offsetWidth; el.classList.add('tic'); }
     }
   }
@@ -787,8 +784,6 @@
         const cents = Number(p.dataset.cents);
         if (Number.isFinite(cents)) {
           p.textContent = dinero(cents, monedaActual);
-          if (monedaActual === 'ves') p.classList.add('modo-ves');
-          else p.classList.remove('modo-ves');
         }
         p.classList.remove('rotar-fuera');
         p.classList.add('rotar-prep');
@@ -805,10 +800,11 @@
   function pintarNotaBCV() {
     const formateada = tasaBCV.toLocaleString(lang === 'es' ? 'es-VE' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     $$('.nota-bcv').forEach((el) => {
-      const texto = lang === 'es'
-        ? `Precios en USD y Bs. · Tasa oficial BCV: <b>${formateada} Bs/$</b>`
-        : `Prices in USD & Bs. · Official BCV rate: <b>${formateada} Bs/$</b>`;
-      el.innerHTML = texto;
+      const linea1 = lang === 'es' ? 'Precios en dólares y bolívares' : 'Prices in US Dollars and Bolívares';
+      const linea2 = lang === 'es'
+        ? `Tasa oficial BCV: <b>${formateada} Bs/$</b>`
+        : `Official BCV rate: <b>${formateada} Bs/$</b>`;
+      el.innerHTML = `<span>${linea1}</span><span class="nota-tasa">${linea2}</span>`;
       el.style.cursor = 'pointer';
       el.title = lang === 'es' ? 'Toca para alternar entre dólares y bolívares' : 'Tap to switch between USD and Bs.';
     });

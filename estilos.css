@@ -432,8 +432,28 @@ img { display: block; max-width: 100%; }
 @keyframes chef-aro { from { transform: rotate(-200deg); opacity: 0; } to { transform: rotate(0); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .logo-chef, .logo-chef img, .logo-chef::after { animation: none; } }
 .marca-app { font-size: 26px; }
-/* Nota de precios bajo el título del menú (antes en el pie) */
-.nota-bcv { margin: 6px 0 4px; font-size: 13px; font-weight: 600; color: var(--suave); }
+/* Nota de precios bajo el título del menú */
+.nota-bcv {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  margin: 8px 0 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--suave);
+  text-align: center;
+  line-height: 1.35;
+}
+.nota-bcv .nota-tasa {
+  font-size: 13.5px;
+  color: var(--tinta);
+  white-space: nowrap;
+}
+.nota-bcv .nota-tasa b {
+  color: var(--rojo);
+  font-weight: 800;
+}
 @media (max-width: 639px) { .franja-foto { height: auto; aspect-ratio: 16 / 10; object-position: 50% 55%; } }
 
 /* Marca rústica */
@@ -500,26 +520,20 @@ body { font-size: 17px; }
 .oferta:active { transform: scale(.98); }
 .oferta:focus-visible { outline: 3px solid var(--rojo); outline-offset: 3px; }
 
-/* ── Precios animados USD / BCV ── */
+/* ── Precios animados USD / BCV (mismo tamaño de tipografía) ── */
 .t-precio {
   display: inline-flex !important;
   align-items: baseline;
   min-height: 26px;
   line-height: 1.1;
+  white-space: nowrap;
 }
 .precio-animado {
   display: inline-block;
   font-variant-numeric: tabular-nums;
-  transition: transform 0.28s cubic-bezier(0.34, 1.25, 0.64, 1), opacity 0.22s ease, font-size 0.2s ease;
+  font-size: inherit;
+  transition: transform 0.28s cubic-bezier(0.34, 1.25, 0.64, 1), opacity 0.22s ease;
   will-change: transform, opacity;
-}
-.precio-animado.modo-ves {
-  font-size: 14.5px !important;
-}
-@media (min-width: 960px) {
-  .precio-animado.modo-ves {
-    font-size: 17px !important;
-  }
 }
 .precio-animado.rotar-fuera {
   transform: translateY(-8px) scale(0.92);
@@ -538,5 +552,156 @@ body { font-size: 17px; }
   .precio-animado.rotar-prep {
     transform: none !important;
   }
+}
+
+/* ── Sección de Contacto al final de la página (WhatsApp & Instagram) ── */
+.seccion-contacto {
+  max-width: calc(var(--ancho) + 64px);
+  margin: 40px auto 32px;
+  padding: 0 16px;
+}
+.contacto-card {
+  background: var(--blanco);
+  border-radius: 24px;
+  padding: 24px 20px 22px;
+  box-shadow: var(--sombra);
+  text-align: center;
+  border: 1px solid rgba(110, 83, 69, 0.1);
+}
+.contacto-kicker {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 700;
+  color: var(--rojo);
+  margin: 0 0 4px;
+}
+.contacto-titulo {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--tinta);
+  margin: 0 0 18px;
+  line-height: 1.2;
+}
+.contacto-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+@media (min-width: 640px) {
+  .contacto-grid {
+    grid-template-columns: 1.2fr 1fr;
+    gap: 16px;
+  }
+}
+
+/* Botones con Glow Animado e Interacción */
+.btn-social {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: 18px;
+  text-decoration: none;
+  color: #ffffff !important;
+  font-family: inherit;
+  transition: transform 0.24s cubic-bezier(0.34, 1.35, 0.64, 1), box-shadow 0.24s ease;
+  user-select: none;
+  overflow: hidden;
+}
+.btn-social:hover {
+  transform: translateY(-3px) scale(1.015);
+}
+.btn-social:active {
+  transform: scale(0.975);
+}
+
+/* WhatsApp */
+.btn-wa {
+  background: linear-gradient(135deg, #25D366 0%, #1EBE5D 45%, #128C7E 100%);
+  box-shadow: 0 10px 24px -4px rgba(37, 211, 102, 0.4), 0 4px 10px -2px rgba(18, 140, 126, 0.25);
+}
+.btn-wa::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 21px;
+  background: radial-gradient(circle, rgba(37, 211, 102, 0.6) 0%, rgba(37, 211, 102, 0) 70%);
+  z-index: -1;
+  animation: glow-pulso-wa 2.6s infinite ease-in-out;
+}
+
+/* Instagram */
+.btn-ig {
+  background: linear-gradient(135deg, #833AB4 0%, #FD1D1D 50%, #F56040 75%, #FCAF45 100%);
+  box-shadow: 0 10px 24px -4px rgba(253, 29, 29, 0.35), 0 4px 10px -2px rgba(131, 58, 180, 0.25);
+}
+.btn-ig::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 21px;
+  background: radial-gradient(circle, rgba(253, 29, 29, 0.5) 0%, rgba(253, 29, 29, 0) 70%);
+  z-index: -1;
+  animation: glow-pulso-ig 3s infinite ease-in-out;
+}
+
+@keyframes glow-pulso-wa {
+  0%, 100% { opacity: 0.35; transform: scale(0.97); }
+  50% { opacity: 0.85; transform: scale(1.03); }
+}
+@keyframes glow-pulso-ig {
+  0%, 100% { opacity: 0.35; transform: scale(0.97); }
+  50% { opacity: 0.85; transform: scale(1.03); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-wa::before, .btn-ig::before { animation: none; opacity: 0.4; }
+  .btn-social { transition: none; }
+  .btn-social:hover { transform: none; }
+}
+
+.btn-social svg {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+.btn-col {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  line-height: 1.15;
+}
+.btn-col .sub-txt {
+  font-size: 11px;
+  font-weight: 500;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.btn-col .main-txt {
+  font-size: 16px;
+  font-weight: 800;
+  margin-top: 2px;
+  letter-spacing: -0.2px;
+}
+.btn-col .detalle-txt {
+  font-size: 12.5px;
+  font-weight: 600;
+  opacity: 0.95;
+  margin-top: 1px;
+}
+.btn-flecha {
+  margin-left: auto;
+  width: 20px;
+  height: 20px;
+  opacity: 0.85;
+  transition: transform 0.2s;
+}
+.btn-social:hover .btn-flecha {
+  transform: translateX(3px);
+  opacity: 1;
 }
 

@@ -13,30 +13,21 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Rye&family=Bebas+Neue&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="estilos.css?v=20261025d">
+<link rel="stylesheet" href="estilos.css?v=20261025e">
 <script src="config.js"></script>
 <script src="polyfill.js"></script>
 <script src="app.js" defer></script>
 </head>
 <body>
 
-<!-- Telón de Entrada (Splash Screen) con Cómic Real de Sergio -->
-<div class="splash-overlay" id="splash">
-  <div class="splash-brasas"></div>
-  <div class="splash-centro" id="splash-centro">
-    <div class="splash-chef-caja" id="splash-logo">
-      <div class="sergio-comic-caja">
-        <img src="img/chef-animado/chef-cuerpo.png" class="capa-cuerpo" alt="">
-        <img src="img/chef-animado/chef-sombrero.png" class="capa-sombrero" alt="">
-        <img src="img/chef-animado/chef-brazo-pincho.png" class="capa-pincho" alt="">
-        <img src="img/chef-animado/chef-brazo-cuchillo.png" class="capa-cuchillo" alt="">
-      </div>
-      <div class="fuego-base"></div>
-    </div>
-    <p class="splash-kicker">Bienvenido a</p>
-    <h1 class="splash-titulo" id="splash-titulo">LAS PARRILLAS<br><small style="font-size: 0.6em; color: #E9A46A;">DE SERGIO</small></h1>
-    <p class="splash-lema">🔥 El Sabor de la Brasa 🔥</p>
-    <span class="splash-saltar">Toca la pantalla para saltar</span>
+<!-- Telón de entrada: se ve una sola vez por navegador -->
+<div class="splash-overlay" id="splash" aria-hidden="true">
+  <div class="splash-bokeh" id="splash-bokeh"></div>
+  <div class="splash-centro">
+    <div class="splash-logo" id="splash-logo"><img src="img/logo-chef.png" alt="" width="252" height="264"></div>
+    <div class="splash-fuego"><div class="splash-chispas" id="splash-chispas"></div>
+      <p class="splash-titulo" id="splash-titulo" data-txt="LAS PARRILLAS DE SERGIO">LAS PARRILLAS DE SERGIO</p></div>
+    <p class="splash-lema" id="splash-lema">El sabor de la brasa</p>
   </div>
 </div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -354,53 +345,70 @@
 (function() {
   const splash = document.getElementById('splash');
   if (!splash) return;
-  // Solo se reproduce 1 vez por sesión
-  if (sessionStorage.getItem('splash_sergio_visto')) {
-    splash.remove();
-    return;
-  }
-  sessionStorage.setItem('splash_sergio_visto', '1');
+  const raiz = document.documentElement;
+  let visto = false;
+  try { visto = localStorage.getItem('splash_sergio_visto') === '1'; } catch (e) {}
+  if (visto) { splash.remove(); return; }
+  try { localStorage.setItem('splash_sergio_visto', '1'); } catch (e) {}
+  raiz.classList.add('splash-activo');
 
-  const splashLogo = document.getElementById('splash-logo');
-  const headerLogo = document.getElementById('header-logo') || document.querySelector('.logo-chef');
-  let terminado = false;
+  const bokeh = document.getElementById('splash-bokeh');
+  for (let i = 0; i < 16; i++) {
+    const e = document.createElement('i'), z = 40 + Math.random() * 110;
+    e.style.cssText = `width:${z}px;height:${z}px;left:${Math.random()*100-10}%;top:${Math.random()*100-10}%;--d:${6+Math.random()*5}s;--r:${-Math.random()*8}s;--o:${.3+Math.random()*.45}`;
+    bokeh.appendChild(e);
+  }
+  const chispas = document.getElementById('splash-chispas');
+  for (let i = 0; i < 18; i++) {
+    const e = document.createElement('i');
+    e.style.cssText = `left:${10+Math.random()*80}%;--d:${1.8+Math.random()*1.6}s;--r:${1.1+Math.random()*1.6}s;--x:${(Math.random()-.5)*50}px`;
+    chispas.appendChild(e);
+  }
 
   function despedirSplash() {
-    if (terminado) return;
-    terminado = true;
+    const logo = document.getElementById('splash-logo');
+    const destino = document.getElementById('header-logo');
+    // Congela la pose actual del flotado para que no salte al cortar la animación
+    const pose = getComputedStyle(logo).transform;
+    logo.style.animation = 'none';
+    logo.style.transform = '';
+    const a = logo.getBoundingClientRect();
+    logo.style.transform = pose === 'none' ? '' : pose;
+    logo.getBoundingClientRect();
 
-    if (headerLogo && splashLogo) {
-      const rectOrigen = splashLogo.getBoundingClientRect();
-      const rectDestino = headerLogo.getBoundingClientRect();
-      const deltaX = rectDestino.left + (rectDestino.width / 2) - (rectOrigen.left + (rectOrigen.width / 2));
-      const deltaY = rectDestino.top + (rectDestino.height / 2) - (rectOrigen.top + (rectOrigen.height / 2));
-      const escala = rectDestino.width / rectOrigen.width;
+    ['splash-titulo', 'splash-lema'].forEach(id => {
+      const e = document.getElementById(id);
+      e.style.opacity = '1'; e.style.filter = 'none'; e.style.animation = 'none';
+      e.getBoundingClientRect();
+      e.style.opacity = ''; e.style.filter = '';
+      e.classList.add('splash-sale');
+    });
 
-      splashLogo.style.transition = 'transform 0.65s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.65s';
-      splashLogo.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(${escala})`;
+    const d = destino ? destino.getBoundingClientRect() : null;
+    if (!d || !d.width) {
+      // En escritorio la cabecera del teléfono está oculta: el logo se desvanece en su sitio
+      requestAnimationFrame(() => {
+        logo.style.transition = 'transform 1s ease, opacity 1s ease';
+        logo.style.transform = 'scale(.85)';
+        logo.style.opacity = '0';
+      });
+    } else {
+      requestAnimationFrame(() => {
+        logo.style.transition = 'transform 1.3s cubic-bezier(.65,0,.35,1), box-shadow 1.3s ease';
+        logo.style.transform = `translate(${d.left + d.width/2 - (a.left + a.width/2)}px, ${d.top + d.height/2 - (a.top + a.height/2)}px) scale(${d.width / a.width})`;
+        logo.style.boxShadow = '0 6px 16px rgba(74, 37, 22, .28)';
+      });
     }
-
-    const tit = document.getElementById('splash-titulo');
-    if (tit) {
-      tit.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
-      tit.style.opacity = '0';
-      tit.style.transform = 'translateY(-10px)';
-    }
-    const kicker = document.querySelector('.splash-kicker');
-    if (kicker) kicker.style.opacity = '0';
-    const lema = document.querySelector('.splash-lema');
-    if (lema) lema.style.opacity = '0';
-    const saltar = document.querySelector('.splash-saltar');
-    if (saltar) saltar.style.opacity = '0';
-
-    splash.classList.add('salida');
+    setTimeout(() => splash.classList.add('salida'), 250);
+    // El logo que viaja es el que se queda: al llegar, aparece el de la cabecera en su lugar
     setTimeout(() => {
-      splash.remove();
-    }, 700);
+      if (destino) destino.style.visibility = 'visible';
+      logo.style.visibility = 'hidden';
+    }, 1320);
+    setTimeout(() => { splash.remove(); }, 1650);
   }
 
-  splash.addEventListener('click', despedirSplash);
-  setTimeout(despedirSplash, 3500);
+  setTimeout(despedirSplash, 4600);
 })();
 </script>
 </body>

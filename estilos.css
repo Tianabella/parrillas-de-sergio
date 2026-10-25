@@ -510,7 +510,13 @@ body { font-size: 17px; }
   .lamina-der .lamina-texto { margin-left: 0; margin-right: max(32px, calc((100vw - var(--ancho)) / 2)); }
 }
 .lamina-der .lamina-texto { max-width: 52%; }
-.lamina-der:last-child .lamina-foto { object-position: 25% center; transform: none; -webkit-mask-image: none; mask-image: none; }
+.lamina-der:last-child { min-height: 220px; }
+.lamina-der:last-child .lamina-foto { object-fit: cover; object-position: left center; transform: none; -webkit-mask-image: none; mask-image: none; }
+.lamina-der:last-child::after { background: linear-gradient(270deg, rgba(38, 18, 9, .92) 0%, rgba(38, 18, 9, .55) 35%, rgba(38, 18, 9, 0) 65%); }
+.lamina-der:last-child .lamina-texto { max-width: 44%; text-shadow: 0 2px 10px rgba(0,0,0,0.9); }
+@media (min-width: 960px) {
+  .lamina-der:last-child::after { background: linear-gradient(270deg, rgba(38, 18, 9, .95) 0%, rgba(38, 18, 9, .65) 28%, rgba(38, 18, 9, 0) 55%); }
+}
 /* Sin buscador: la carta es corta */
 .buscador { display: none !important; }
 

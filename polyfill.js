@@ -31,8 +31,8 @@
         desc: t('Con yuca y ensalada. Carne, pollo o chorizo; sencilla o mixta, a tu gusto.', 'With cassava and salad. Beef, chicken or chorizo; single or mixed.'),
         grupos: [
           { slug: 'tamano', nombre: t('Tamaño', 'Size'), tipo: 'uno', opciones: [
-            op('parrilla-200', '200 g', '200 g'),
-            op('parrilla-grande', 'Grande', 'Large', 300),
+            op('parrilla-200', '200 g de proteína', '200 g of protein'),
+            op('parrilla-grande', 'Grande · 300 g de proteína', 'Large · 300 g of protein', 300),
           ] },
           proteina(),
           quitar(op('sin-yuca', 'Yuca', 'Cassava'), op('sin-ensalada', 'Ensalada', 'Salad')),
@@ -41,8 +41,8 @@
         desc: t('Carne, pollo o chorizo con ensalada y salsas de la casa. Sencillo o mixto.', 'Beef, chicken or chorizo with salad and house sauces. Single or mixed.'),
         grupos: [
           { slug: 'tamano', nombre: t('Tamaño', 'Size'), tipo: 'uno', opciones: [
-            op('pepito-16', '16 cm', '16 cm'),
-            op('pepito-32', '32 cm', '32 cm', 400),
+            op('pepito-16', '16 cm · 150 g de proteína', '16 cm · 150 g of protein'),
+            op('pepito-32', '32 cm · 300 g de proteína', '32 cm · 300 g of protein', 400),
           ] },
           proteina(),
           quitar(op('sin-ensalada-p', 'Ensalada', 'Salad'), op('sin-salsas-p', 'Salsas', 'Sauces')),

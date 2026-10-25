@@ -781,3 +781,8 @@ body { font-size: 17px; }
 @keyframes cta-onda { 0%, 60% { opacity: 0; transform: scale(1); } 70% { opacity: .8; } 100% { opacity: 0; transform: scale(1.25, 1.5); } }
 @keyframes cta-flecha { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
 @keyframes cta-brillo { 0% { background-position: 130% 0; } 40%, 100% { background-position: -30% 0; } }
+
+/* Título de la hamburguesa fuera del flyer, separado de la carta */
+.oferta-caja { border-top: 1px solid var(--linea); padding-top: 18px; }
+.oferta-titulo { margin: 0 0 10px; font-family: var(--display); font-weight: 400; font-size: 30px; letter-spacing: 1.5px; line-height: 1; color: var(--rojo); text-transform: uppercase; }
+@media (min-width: 900px) { .oferta-caja { border-top: 0; padding-top: 0; } }

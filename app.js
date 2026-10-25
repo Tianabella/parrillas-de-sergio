@@ -50,7 +50,7 @@
       k2: 'Parrillas', h2a: 'Con yuca', h2b: 'y ensalada.', b2: '200 g de carne, pollo o chorizo, sencilla o mixta.',
       k3: 'Pepito', h3a: '16 cm,', h3b: '150 g.', b3: 'Carne, pollo o chorizo con ensalada y salsas de la casa. Sencillo o mixto.',
       k4: 'Pepito', h4a: '32 cm,', h4b: '300 g de proteína.', b4: 'El grande, con ensalada y salsas de la casa. Sencillo o mixto.',
-      pedirAhora: 'Pedir ahora', duoFoto: 'Hecho en la brasa.', kOferta: 'Hamburguesa', ofertaA: 'Lechuga, tomate', ofertaB: 'y salsas de la casa',
+      pedirAhora: 'Pedir ahora', duoFoto: 'Hecho en la brasa.', kOferta: 'Hamburguesa', verOferta: 'Toca para verla', ofertaA: 'Lechuga, tomate', ofertaB: 'y salsas de la casa',
       menuA: 'Nuestro', menuB: 'menú', populares: 'Los más pedidos', verCombos: 'Ver parrillas', cargando: 'Cargando el menú…', todo: 'Todo', favoritos: 'Favoritos',
       comoA: 'Pide fácil,', comoB: 'come rico.', r1: 'Sin llamar', r1d: 'Tu pedido llega directo a la cocina desde el teléfono.',
       r2: 'A tu gusto', r2d: 'Quita o agrega ingredientes con un toque.', r3: 'Te avisamos', r3d: 'Mira en vivo cuándo entra a cocina y cuándo está listo.',
@@ -84,7 +84,7 @@
       k2: 'Grill platters', h2a: 'With cassava', h2b: 'and salad.', b2: '200 g of beef, chicken or chorizo, single or mixed.',
       k3: 'Pepito', h3a: '16 cm,', h3b: '150 g.', b3: 'Beef, chicken or chorizo with salad and house sauces. Single or mixed.',
       k4: 'Pepito', h4a: '32 cm,', h4b: '300 g of protein.', b4: 'The big one, with salad and house sauces. Single or mixed.',
-      pedirAhora: 'Order now', duoFoto: 'Made on the grill.', kOferta: 'Burger', ofertaA: 'Lettuce, tomato', ofertaB: 'and house sauces',
+      pedirAhora: 'Order now', duoFoto: 'Made on the grill.', kOferta: 'Burger', verOferta: 'Tap to see it', ofertaA: 'Lettuce, tomato', ofertaB: 'and house sauces',
       menuA: 'Our', menuB: 'menu', populares: 'Customer favorites', verCombos: 'See platters', cargando: 'Loading the menu…', todo: 'All', favoritos: 'Favorites',
       comoA: 'Easy to order,', comoB: 'good to eat.', r1: 'No phone calls', r1d: 'Your order goes straight to the kitchen from your phone.',
       r2: 'Your way', r2d: 'Remove or add ingredients with one tap.', r3: 'We let you know', r3d: 'Watch live when it starts cooking and when it is ready.',
@@ -236,7 +236,6 @@
   function selloHTML(p) {
     if (p.agotado) return `<span class="sello sello-gris t-sello">${esc(t('agotado'))}</span>`;
     if (ahorro(p)) return `<span class="sello sello-verde t-sello">${esc(t('ahorras', { monto: dinero(ahorro(p)) }))}</span>`;
-    if (p.destacado) return `<span class="sello t-sello">${esc(t('masPedido'))}</span>`;
     return '';
   }
   function tarjetaHTML(p) {
@@ -454,7 +453,7 @@
     $('#hp-nombre').textContent = p.nombre;
     $('#hp-desc').textContent = tx(p.desc);
     $('#hp-meta').innerHTML = `<svg class="ico"><use href="#i-reloj"/></svg>${esc(t('minutos', { n: p.minutos }))}`
-      + (ahorro(p) ? ` <span class="sello sello-verde">${esc(t('ahorras', { monto: dinero(ahorro(p)) }))}</span>` : p.destacado ? ` <span class="sello">${esc(t('masPedido'))}</span>` : '');
+      + (ahorro(p) ? ` <span class="sello sello-verde">${esc(t('ahorras', { monto: dinero(ahorro(p)) }))}</span>` : '');
     // Sergio: la hoja solo explica cómo se puede pedir el plato; no hay nada que marcar.
     $('#hp-grupos').innerHTML = p.grupos.map((g) => {
       const items = g.opciones.map((o) => {

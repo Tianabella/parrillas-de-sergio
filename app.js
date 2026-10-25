@@ -8,7 +8,6 @@
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const dinero = (c) => '$' + (c / 100).toFixed(2);
   const reduceMov = matchMedia('(prefers-reduced-motion: reduce)');
   const esWeb = matchMedia('(min-width: 960px)');
 
@@ -27,6 +26,21 @@
   // ── Guardado local: comodidad, la página funciona sin él ──
   const leer = (k, def) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : def; } catch (e) { return def; } };
   const guardar = (k, v) => { try { v === null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* sin almacenamiento */ } };
+
+  // ── Tasa BCV y moneda dinámica (USD / VES) ──
+  let tasaBCV = Number(leer('sergio_tasa_bcv', 886.23)) || 886.23;
+  let monedaActual = 'usd'; // 'usd' o 'ves'
+
+  const formatearUSD = (cents) => '$' + (cents / 100).toFixed(2);
+  const formatearVES = (cents) => {
+    const bs = (cents / 100) * tasaBCV;
+    return 'Bs. ' + new Intl.NumberFormat('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(bs);
+  };
+  const dinero = (c, mon = monedaActual) => mon === 'ves' ? formatearVES(c) : formatearUSD(c);
+  const dineroHTML = (cents, extraClase = '') => {
+    const claseVes = monedaActual === 'ves' ? ' modo-ves' : '';
+    return `<span class="precio-animado${claseVes}${extraClase ? ' ' + extraClase : ''}" data-cents="${cents}">${dinero(cents, monedaActual)}</span>`;
+  };
 
   // ── Textos ES / EN ──
   const T = {
@@ -128,7 +142,7 @@
   // ── Idioma ──
   function aplicarIdioma() {
     document.documentElement.lang = lang;
-    $$('[data-t]').forEach((el) => { el.textContent = t(el.dataset.t); });
+    $$('[data-t]').forEach((el) => { if (el.dataset.t !== 'pieTexto') el.textContent = t(el.dataset.t); });
     $$('[data-buscar]').forEach((i) => { i.placeholder = t('buscar'); });
     $$('[data-idioma]').forEach((b) => { b.textContent = t('idiomaBtn'); b.setAttribute('aria-label', t('idiomaAria')); });
     $$('.hoja-cerrar').forEach((x) => x.setAttribute('aria-label', t('cerrar')));
@@ -136,6 +150,7 @@
     $('#hp-mas').setAttribute('aria-label', t('mas'));
     $('.cantidad').setAttribute('aria-label', t('cantidad'));
     pintarPrecios();
+    pintarNotaBCV();
   }
   $$('[data-idioma]').forEach((b) => b.addEventListener('click', () => {
     lang = lang === 'es' ? 'en' : 'es';
@@ -203,7 +218,13 @@
     }
   }
   function pintarPrecios() {
-    $$('[data-precio]').forEach((el) => { const p = platos[el.dataset.precio]; if (p) el.textContent = dinero(p.precio_cents); });
+    $$('[data-precio]').forEach((el) => {
+      const p = platos[el.dataset.precio];
+      if (p) {
+        el.innerHTML = dineroHTML(p.precio_cents);
+        el.dataset.cents = p.precio_cents;
+      }
+    });
     $$('[data-ahorro]').forEach((el) => {
       const p = platos[el.dataset.ahorro];
       el.textContent = p && ahorro(p) ? t('ahorras', { monto: dinero(ahorro(p)) }) : '';
@@ -232,7 +253,7 @@
         <span class="t-desc">${esc(tx(p.desc))}</span>
         <span class="t-meta"><svg class="ico"><use href="#i-reloj"/></svg>${esc(t('minutos', { n: p.minutos }))}</span>
         <span class="t-pie">
-          <span class="t-precio">${dinero(p.precio_cents)}${ahorro(p) ? `<s>${dinero(p.suelto_cents)}</s>` : ''}</span>
+          <span class="t-precio">${dineroHTML(p.precio_cents)}${ahorro(p) ? `<s>${dineroHTML(p.suelto_cents)}</s>` : ''}</span>
           <span class="t-mas" aria-hidden="true">${p.agotado ? '–' : n ? n : '+'}</span>
         </span>
       </button>
@@ -439,7 +460,7 @@
     $('#hp-grupos').innerHTML = p.grupos.map((g) => {
       const items = g.opciones.map((o) => {
         if (g.tipo === 'quitar') return `<li><span class="sin">${esc(t('sin'))}</span> ${esc(tx(o.nombre).toLowerCase())}</li>`;
-        const precio = g.tipo === 'uno' && g.slug === 'tamano' && !p.precio_pendiente ? `<b>${dinero(p.precio_cents + o.precio_cents)}</b>` : '';
+        const precio = g.tipo === 'uno' && g.slug === 'tamano' && !p.precio_pendiente ? `<b>${dineroHTML(p.precio_cents + o.precio_cents)}</b>` : '';
         return `<li>${esc(tx(o.nombre))}${precio}</li>`;
       }).join('');
       const titulo = g.tipo === 'quitar' ? t('quitarT') : tx(g.nombre);
@@ -458,9 +479,13 @@
     const p = platos[editando.slug];
     $('#hp-cant').textContent = editando.cantidad;
     const el = $('#hp-precio');
-    const nuevo = dinero(unitario(p, opcionesMarcadas()) * editando.cantidad);
+    const cents = unitario(p, opcionesMarcadas()) * editando.cantidad;
+    el.dataset.cents = cents;
+    const nuevo = dinero(cents, monedaActual);
     if (el.textContent !== nuevo) {
       el.textContent = nuevo;
+      if (monedaActual === 'ves') el.classList.add('modo-ves');
+      else el.classList.remove('modo-ves');
       if (animar) { el.classList.remove('tic'); void el.offsetWidth; el.classList.add('tic'); }
     }
   }
@@ -751,8 +776,80 @@
   }
   $('#banda-pedido').addEventListener('click', (e) => { e.preventDefault(); abrirSeguimiento(); });
 
+  // ── Animación y actualización de moneda (USD / BCV) ──
+  function alternarMoneda() {
+    monedaActual = monedaActual === 'usd' ? 'ves' : 'usd';
+    const precios = $$('.precio-animado, #hp-precio[data-cents]');
+    precios.forEach((p) => p.classList.add('rotar-fuera'));
+
+    setTimeout(() => {
+      precios.forEach((p) => {
+        const cents = Number(p.dataset.cents);
+        if (Number.isFinite(cents)) {
+          p.textContent = dinero(cents, monedaActual);
+          if (monedaActual === 'ves') p.classList.add('modo-ves');
+          else p.classList.remove('modo-ves');
+        }
+        p.classList.remove('rotar-fuera');
+        p.classList.add('rotar-prep');
+      });
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          precios.forEach((p) => p.classList.remove('rotar-prep'));
+        });
+      });
+    }, 220);
+  }
+
+  function pintarNotaBCV() {
+    const formateada = tasaBCV.toLocaleString(lang === 'es' ? 'es-VE' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    $$('.nota-bcv').forEach((el) => {
+      const texto = lang === 'es'
+        ? `Precios en USD y Bs. · Tasa oficial BCV: <b>${formateada} Bs/$</b>`
+        : `Prices in USD & Bs. · Official BCV rate: <b>${formateada} Bs/$</b>`;
+      el.innerHTML = texto;
+      el.style.cursor = 'pointer';
+      el.title = lang === 'es' ? 'Toca para alternar entre dólares y bolívares' : 'Tap to switch between USD and Bs.';
+    });
+  }
+
+  async function cargarTasaBCV() {
+    try {
+      const res = await fetch('https://ve.dolarapi.com/v1/dolares/oficial');
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.promedio) {
+          tasaBCV = Number(data.promedio);
+          guardar('sergio_tasa_bcv', tasaBCV);
+          pintarNotaBCV();
+          $$('.precio-animado, #hp-precio[data-cents]').forEach((p) => {
+            const cents = Number(p.dataset.cents);
+            if (Number.isFinite(cents)) p.textContent = dinero(cents, monedaActual);
+          });
+        }
+      }
+    } catch (e) {
+      console.warn('Usando tasa guardada de referencia BCV:', e);
+    }
+  }
+
+  // Animación continua con delay de 4.5 segundos
+  let temporizadorMoneda = setInterval(alternarMoneda, 4500);
+
+  // Tocar cualquier precio o la nota BCV para alternar de inmediato
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('.t-precio, .precio-animado, .nota-bcv, .oferta-precio, #hp-precio')) {
+      clearInterval(temporizadorMoneda);
+      alternarMoneda();
+      temporizadorMoneda = setInterval(alternarMoneda, 4500);
+    }
+  });
+
   // ── Arranque ──
   aplicarIdioma();
   cargarMenu();
   actualizarBanda();
+  pintarNotaBCV();
+  cargarTasaBCV();
 })();

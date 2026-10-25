@@ -786,3 +786,22 @@ body { font-size: 17px; }
 .oferta-caja { border-top: 1px solid var(--linea); padding-top: 18px; }
 .oferta-titulo { margin: 0 0 10px; font-family: var(--display); font-weight: 400; font-size: 30px; letter-spacing: 1.5px; line-height: 1; color: var(--rojo); text-transform: uppercase; }
 @media (min-width: 900px) { .oferta-caja { border-top: 0; padding-top: 0; } }
+
+/* ── Pantallas angostas (iPhone con Zoom de pantalla = 320px, Android 360px) ── */
+/* ponytail: un solo ajuste fluido en vez de breakpoints por modelo; cubre 320–430px */
+.btn-col { min-width: 0; }
+.btn-col span { overflow-wrap: anywhere; }
+@media (max-width: 374px) {
+  .btn-social { gap: 10px !important; padding: 14px 14px !important; }
+  .btn-social > svg:first-child { width: 28px !important; height: 28px !important; }
+  .btn-social .main-txt { font-size: 17px !important; }
+  .btn-social .detalle-txt { font-size: 12px !important; }
+}
+/* Categorías: se reparten el ancho en lugar de medir 78px fijos */
+@media (max-width: 899px) {
+  .cats { gap: 4px; }
+  .cats .cat { flex: 1 1 0; width: auto; min-width: 0; font-size: clamp(10.5px, 3.3vw, 14px); }
+  .cat-circulo { width: min(66px, 100%); height: auto; aspect-ratio: 1; }
+}
+.lamina .titular { font-size: clamp(24px, 8.6vw, 76px); overflow-wrap: break-word; }
+.oferta .titular { font-size: clamp(24px, 7.5vw, 54px); }

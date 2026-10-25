@@ -13,12 +13,32 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Rye&family=Bebas+Neue&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="estilos.css?v=20261025c">
+<link rel="stylesheet" href="estilos.css?v=20261025d">
 <script src="config.js"></script>
 <script src="polyfill.js"></script>
 <script src="app.js" defer></script>
 </head>
 <body>
+
+<!-- Telón de Entrada (Splash Screen) con Cómic Real de Sergio -->
+<div class="splash-overlay" id="splash">
+  <div class="splash-brasas"></div>
+  <div class="splash-centro" id="splash-centro">
+    <div class="splash-chef-caja" id="splash-logo">
+      <div class="sergio-comic-caja">
+        <img src="img/chef-animado/chef-cuerpo.png" class="capa-cuerpo" alt="">
+        <img src="img/chef-animado/chef-sombrero.png" class="capa-sombrero" alt="">
+        <img src="img/chef-animado/chef-brazo-pincho.png" class="capa-pincho" alt="">
+        <img src="img/chef-animado/chef-brazo-cuchillo.png" class="capa-cuchillo" alt="">
+      </div>
+      <div class="fuego-base"></div>
+    </div>
+    <p class="splash-kicker">Bienvenido a</p>
+    <h1 class="splash-titulo" id="splash-titulo">LAS PARRILLAS<br><small style="font-size: 0.6em; color: #E9A46A;">DE SERGIO</small></h1>
+    <p class="splash-lema">🔥 El Sabor de la Brasa 🔥</p>
+    <span class="splash-saltar">Toca la pantalla para saltar</span>
+  </div>
+</div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-casa" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z" fill="currentColor"/></symbol>
   <symbol id="i-menu" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="6.5" height="6.5" rx="2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="2"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="2"/></g></symbol>
@@ -60,7 +80,7 @@
 <header class="app-cabeza" id="arriba">
   <div class="app-fila">
     <div class="app-marca">
-      <span class="logo-chef" aria-hidden="true"><img src="img/logo-chef.png" alt="" width="252" height="264"></span>
+      <span class="logo-chef" id="header-logo" aria-hidden="true"><img src="img/logo-chef.png" alt="" width="252" height="264"></span>
       <div>
       <p class="saludo" data-t="saludo">¡Hola! Bienvenido 👋</p>
       <p class="marca marca-app">LAS PARRILLAS DE SERGIO</p>
@@ -329,5 +349,59 @@
 </section>
 
 <div class="aviso" id="aviso" role="status" hidden></div>
+
+<script>
+(function() {
+  const splash = document.getElementById('splash');
+  if (!splash) return;
+  // Solo se reproduce 1 vez por sesión
+  if (sessionStorage.getItem('splash_sergio_visto')) {
+    splash.remove();
+    return;
+  }
+  sessionStorage.setItem('splash_sergio_visto', '1');
+
+  const splashLogo = document.getElementById('splash-logo');
+  const headerLogo = document.getElementById('header-logo') || document.querySelector('.logo-chef');
+  let terminado = false;
+
+  function despedirSplash() {
+    if (terminado) return;
+    terminado = true;
+
+    if (headerLogo && splashLogo) {
+      const rectOrigen = splashLogo.getBoundingClientRect();
+      const rectDestino = headerLogo.getBoundingClientRect();
+      const deltaX = rectDestino.left + (rectDestino.width / 2) - (rectOrigen.left + (rectOrigen.width / 2));
+      const deltaY = rectDestino.top + (rectDestino.height / 2) - (rectOrigen.top + (rectOrigen.height / 2));
+      const escala = rectDestino.width / rectOrigen.width;
+
+      splashLogo.style.transition = 'transform 0.65s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.65s';
+      splashLogo.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(${escala})`;
+    }
+
+    const tit = document.getElementById('splash-titulo');
+    if (tit) {
+      tit.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+      tit.style.opacity = '0';
+      tit.style.transform = 'translateY(-10px)';
+    }
+    const kicker = document.querySelector('.splash-kicker');
+    if (kicker) kicker.style.opacity = '0';
+    const lema = document.querySelector('.splash-lema');
+    if (lema) lema.style.opacity = '0';
+    const saltar = document.querySelector('.splash-saltar');
+    if (saltar) saltar.style.opacity = '0';
+
+    splash.classList.add('salida');
+    setTimeout(() => {
+      splash.remove();
+    }, 700);
+  }
+
+  splash.addEventListener('click', despedirSplash);
+  setTimeout(despedirSplash, 3500);
+})();
+</script>
 </body>
 </html>

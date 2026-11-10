@@ -262,6 +262,11 @@ git add plantillas/config.plantilla.js plantillas/analitica.plantilla.js plantil
 git commit -m "feat: plantillas tokenizadas de config, analítica y app"
 ```
 
+> **Enmienda post-revisión (Task 3):** además de las líneas del Step 3, tokenizar en `app.plantilla.js`:
+> 1. `guardar('sergio_tasa_bcv', tasaBCV)` → `guardar('{{SLUG}}_tasa_bcv', tasaBCV)` — sin esto la réplica lee y escribe claves distintas de tasa (regresión funcional).
+> 2. `` document.title = `¡#${d.numero}! · Las Parrillas de Sergio` `` (en `pintarSeguimiento()`) → `` `¡#${d.numero}! · {{NOMBRE}}` `` — el nombre de Sergio quedaba visible al marcar el pedido "listo".
+> El test de la Task 3 debe además afirmar que la salida compilada contiene `guardar('parrillas-de-sergio_tasa_bcv'`.
+
 ---
 
 ### Task 4: Plantilla del HTML — marca, contacto y splash opcional
@@ -482,6 +487,8 @@ Expected: el sitio generado contiene la marca de Sergio, el splash activo y cero
 git add tools/replicar.js tools/replicar.test.js
 git commit -m "feat: generador completo con validación de assets y CLI"
 ```
+
+> **Enmienda post-revisión (Task 6):** el filtro de `cpSync` debe excluir también `.superpowers` (los artefactos del plan no pueden terminar en el sitio de un cliente). Regex corregido: `/\.git|node_modules|plantillas|tools|docs|\.superpowers|negocio\.ejemplo\.json/`.
 
 ---
 

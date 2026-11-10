@@ -39,3 +39,17 @@ test('valores deriva el teléfono bonito y aplana splash/colores', () => {
   assert.equal(v.SPLASH_TITULO, 'LAS PARRILLAS DE SERGIO');
   assert.equal(v.SPLASH_DURACION, '4600');
 });
+
+test('las plantillas pequeñas compilan sin tokens residuales', () => {
+  const v = valores(N);
+  for (const f of ['config.plantilla.js', 'analitica.plantilla.js', 'app.plantilla.js']) {
+    const salida = render(readFileSync(URLS(`../plantillas/${f}`), 'utf8'), v);
+    assert.ok(!salida.includes('{{'), `${f} dejó tokens`);
+  }
+  const cfg = render(readFileSync(URLS('../plantillas/config.plantilla.js'), 'utf8'), v);
+  assert.ok(cfg.includes("window.MRC = { api: '' };"));
+  const an = render(readFileSync(URLS('../plantillas/analitica.plantilla.js'), 'utf8'), v);
+  assert.ok(an.includes("sitio: 'parrillas-de-sergio'"));
+  const app = render(readFileSync(URLS('../plantillas/app.plantilla.js'), 'utf8'), v);
+  assert.ok(app.includes("leer('parrillas-de-sergio_tasa_bcv', 886.23)) || 886.23"));
+});

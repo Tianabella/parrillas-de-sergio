@@ -52,4 +52,5 @@ test('las plantillas pequeñas compilan sin tokens residuales', () => {
   assert.ok(an.includes("sitio: 'parrillas-de-sergio'"));
   const app = render(readFileSync(URLS('../plantillas/app.plantilla.js'), 'utf8'), v);
   assert.ok(app.includes("leer('parrillas-de-sergio_tasa_bcv', 886.23)) || 886.23"));
+  assert.ok(app.includes("guardar('parrillas-de-sergio_tasa_bcv'"));
 });

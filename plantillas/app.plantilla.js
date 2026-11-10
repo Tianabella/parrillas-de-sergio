@@ -728,7 +728,7 @@
     $('#sg-total').textContent = `${t('total')}: ${dinero(d.totales.total_cents)} · ${t('r4')}`;
     if (anterior && anterior !== d.estado && d.estado === 'listo') {
       if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
-      document.title = `¡#${d.numero}! · Las Parrillas de Sergio`;
+      document.title = `¡#${d.numero}! · {{NOMBRE}}`;
     }
   }
   async function abrirSeguimiento() {
@@ -816,7 +816,7 @@
         const data = await res.json();
         if (data && data.promedio) {
           tasaBCV = Number(data.promedio);
-          guardar('sergio_tasa_bcv', tasaBCV);
+          guardar('{{SLUG}}_tasa_bcv', tasaBCV);
           pintarNotaBCV();
           $$('.precio-animado, #hp-precio[data-cents]').forEach((p) => {
             const cents = Number(p.dataset.cents);

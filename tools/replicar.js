@@ -1,6 +1,7 @@
 // tools/replicar.js
 import { cpSync, mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 export function render(plantilla, vals) {
   let out = plantilla;
@@ -19,8 +20,9 @@ export function recortarBloque(html, nombre, conservar) {
 }
 
 export function valores(n) {
+  const detalle = n.nombre.replace(new RegExp(n.nombreCorto.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), '').trim();
   return {
-    SLUG: n.slug, NOMBRE: n.nombre, NOMBRE_CORTO: n.nombreCorto, LEMA: n.lema,
+    SLUG: n.slug, NOMBRE: n.nombre, NOMBRE_CORTO: n.nombreCorto, MARCA_DETALLE: detalle, LEMA: n.lema,
     WHATSAPP: n.whatsapp, WHATSAPP_BONITO: `0${n.whatsapp.slice(2, 5)}-${n.whatsapp.slice(5)}`,
     INSTAGRAM: n.instagram, SITIO_POSTHOG: n.sitioPosthog, API_URL: n.apiUrl,
     TASA_FALLBACK: String(n.tasaFallback),
@@ -32,10 +34,27 @@ export function valores(n) {
 
 const ASSETS = ['img/logo-chef.png', 'img/hero/hero-1.jpg', 'img/hero/hero-2.jpg', 'img/hero/hero-3.jpg', 'img/hero/hero-4.jpg'];
 
+const HEX = /^#[0-9A-Fa-f]{6}$/;
+
+function validarConfig(n) {
+  const problemas = [];
+  for (const k of ['slug', 'nombre', 'nombreCorto', 'lema', 'whatsapp', 'instagram', 'sitioPosthog', 'apiUrl', 'tasaFallback', 'splash', 'colores'])
+    if (!(k in n)) problemas.push(`falta ${k}`);
+  if (n.splash) {
+    for (const k of ['titulo', 'lema', 'duracionMs']) if (!(k in n.splash)) problemas.push(`falta splash.${k}`);
+    if (typeof n.splash.activado !== 'boolean') problemas.push('splash.activado debe ser boolean');
+  }
+  if (n.colores) for (const [k, v] of Object.entries(n.colores))
+    if (!HEX.test(v)) problemas.push(`colores.${k} no es hex #RRGGBB`);
+  if (n.whatsapp && !/^58\d{10}$/.test(n.whatsapp)) problemas.push('whatsapp debe ser 58 + 10 dígitos');
+  if (problemas.length) throw new Error(`configuración incompleta: ${problemas.join('; ')}`);
+}
+
 export function generar(origen, destino, n) {
+  validarConfig(n);
   mkdirSync(destino, { recursive: true });
   cpSync(origen, destino, { recursive: true,
-    filter: (s) => !/\.git|node_modules|plantillas|tools|docs|\.superpowers|negocio\.ejemplo\.json/.test(s) });
+    filter: (s) => !/(^|\/)(\.git|node_modules|plantillas|tools|docs|\.superpowers|negocios)(\/|$)/.test(s) && !s.endsWith('negocio.ejemplo.json') });
   for (const a of ASSETS) {
     if (!existsSync(join(destino, a))) throw new Error(`asset obligatorio ausente: ${a}`);
   }
@@ -54,6 +73,6 @@ export function generar(origen, destino, n) {
 if (process.argv[1] && process.argv[1].endsWith('replicar.js')) {
   const [, , cfg, destino] = process.argv;
   if (!cfg || !destino) { console.error('uso: node tools/replicar.js <negocio.json> <destino>'); process.exit(1); }
-  generar(new URL('..', import.meta.url).pathname, destino, JSON.parse(readFileSync(cfg, 'utf8')));
+  generar(fileURLToPath(new URL('..', import.meta.url)), destino, JSON.parse(readFileSync(cfg, 'utf8')));
   console.log(`Sitio generado en ${destino}`);
 }

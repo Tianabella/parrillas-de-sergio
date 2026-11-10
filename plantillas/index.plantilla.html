@@ -55,7 +55,7 @@
 
 <!-- Barra web (computadora) -->
 <header class="web-nav">
-  <a class="marca" href="#arriba" aria-label="{{NOMBRE}}, inicio">{{NOMBRE}}</a>
+  <a class="marca" href="#arriba" aria-label="{{NOMBRE}}, inicio">{{NOMBRE_CORTO}}<small>{{MARCA_DETALLE}}</small></a>
   <nav aria-label="Secciones">
     <a href="#menu" data-t="nMenu">Menú</a>
     <a href="#menu" data-ir-cat="parrillas" data-t="nCombos">Parrillas</a>
@@ -359,9 +359,9 @@
   if (!splash) return;
   const raiz = document.documentElement;
   let visto = false;
-  try { visto = localStorage.getItem('splash_sergio_visto') === '1'; } catch (e) {}
+  try { visto = localStorage.getItem('splash_{{SLUG}}_visto') === '1'; } catch (e) {}
   if (visto) { splash.remove(); return; }
-  try { localStorage.setItem('splash_sergio_visto', '1'); } catch (e) {}
+  try { localStorage.setItem('splash_{{SLUG}}_visto', '1'); } catch (e) {}
   raiz.classList.add('splash-activo');
 
   const bokeh = document.getElementById('splash-bokeh');

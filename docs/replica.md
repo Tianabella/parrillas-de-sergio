@@ -5,11 +5,12 @@ Logo (PNG cuadrado), nombre, lema, 4 colores (o "usa los míos"), WhatsApp,
 Instagram, menú con precios en USD, 4 fotos de portada + 1 por plato.
 
 ## 1. Configurar
-Copiar negocio.ejemplo.json → <slug>.json y llenar todo. splash.activado=false
-si el negocio no quiere animación de inicio.
+Copiar negocio.ejemplo.json → negocios/<slug>.json (dentro del repo; el
+generador excluye ese directorio de la salida) y llenar todo.
+splash.activado=false si el negocio no quiere animación de inicio.
 
 ## 2. Generar
-node tools/replicar.js <slug>.json ../<slug>
+node tools/replicar.js negocios/<slug>.json ../<slug>
 
 ## 3. Backend (BLOQUEANTE — ver "La que lo mata" en el plan)
 El menú y pedidos los sirve Cloud Run. Sin negocio creado en el panel y apiUrl
@@ -17,12 +18,18 @@ apuntando al servicio, la réplica muestra "No pudimos cargar el menú".
 Verificar: curl <apiUrl>/api/public/menu → {"ok":true,…}
 
 ## 4. Imágenes
-Colocar en el destino: img/logo-chef.png, img/hero/hero-1..4.jpg,
-img/platos/<slug-plato>.jpg, img/secciones/*.jpg. Nombres exactos.
+Las imágenes del cliente REEMPLAZAN los img/ del repo ANTES de correr el
+generador: img/logo-chef.png, img/hero/hero-1..4.jpg, img/platos/<slug-plato>.jpg,
+img/secciones/*.jpg. Nombres exactos. El generador valida logo y hero;
+`img/platos/` e `img/secciones/` se copian tal cual — si falta una foto, el
+sitio muestra un plato dibujado (fallback `sinFoto`).
 
 ## 5. Publicar y QR
 Repo nuevo + GitHub Pages (o el dominio del servicio Cloud Run si el backend
-sirve la landing). Regenerar qr.png y cartel-qr.png contra la URL final.
+sirve la landing). Aloja cada negocio en su propio subdominio o dominio (o el
+dominio del servicio Cloud Run): las claves de localStorage (`mrc_*`, splash)
+son por origen y colisionarían entre réplicas en un mismo `*.github.io`.
+Regenerar qr.png y cartel-qr.png contra la URL final.
 Verificar escaneando con un teléfono real.
 
 ## 6. Prueba de pedido (la que importa)

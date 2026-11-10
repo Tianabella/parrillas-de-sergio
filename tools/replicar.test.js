@@ -54,3 +54,21 @@ test('las plantillas pequeñas compilan sin tokens residuales', () => {
   assert.ok(app.includes("leer('parrillas-de-sergio_tasa_bcv', 886.23)) || 886.23"));
   assert.ok(app.includes("guardar('parrillas-de-sergio_tasa_bcv'"));
 });
+
+test('index compila con y sin splash', () => {
+  const v = valores(N);
+  let html = readFileSync(URLS('../plantillas/index.plantilla.html'), 'utf8');
+  html = recortarBloque(html, 'SPLASH_SCRIPT', N.splash.activado);
+  html = recortarBloque(html, 'SPLASH', N.splash.activado);
+  const con = render(html, v);
+  assert.ok(con.includes('wa.me/584124652676'));
+  assert.ok(con.includes('instagram.com/lasparrillasdesergio'));
+  assert.ok(con.includes('LAS PARRILLAS DE SERGIO')); // splash visible
+
+  let html2 = readFileSync(URLS('../plantillas/index.plantilla.html'), 'utf8');
+  html2 = recortarBloque(html2, 'SPLASH_SCRIPT', false);
+  html2 = recortarBloque(html2, 'SPLASH', false);
+  const sin = render(html2, v);
+  assert.ok(!sin.includes('splash-overlay'), 'el splash debió recortarse');
+  assert.ok(sin.includes('app-cabeza'), 'la cabecera queda intacta');
+});

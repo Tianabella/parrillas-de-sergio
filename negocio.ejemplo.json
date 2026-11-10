@@ -1,0 +1,13 @@
+{
+  "slug": "parrillas-de-sergio",
+  "nombre": "Las Parrillas de Sergio",
+  "nombreCorto": "LAS PARRILLAS",
+  "lema": "El sabor de la brasa.",
+  "splash": { "activado": true, "titulo": "LAS PARRILLAS DE SERGIO", "lema": "El sabor de la brasa", "duracionMs": 4600 },
+  "colores": { "fondo": "#F8F0E4", "texto": "#4A2516", "primario": "#C0392B", "acento": "#E8A317" },
+  "whatsapp": "584124652676",
+  "instagram": "lasparrillasdesergio",
+  "sitioPosthog": "parrillas-de-sergio",
+  "apiUrl": "",
+  "tasaFallback": 886.23
+}

@@ -55,6 +55,14 @@ test('las plantillas pequeñas compilan sin tokens residuales', () => {
   assert.ok(app.includes("guardar('parrillas-de-sergio_tasa_bcv'"));
 });
 
+test('estilos compilan con la paleta del negocio', () => {
+  const css = render(readFileSync(URLS('../plantillas/estilos.plantilla.css'), 'utf8'), valores(N));
+  assert.ok(css.includes(':root{') || css.includes(':root {'));
+  assert.ok(css.includes('--fondo:#F8F0E4') || css.includes('--fondo: #F8F0E4'));
+  assert.ok(css.includes('var(--primario)'), 'el cuerpo debe usar var(--primario)');
+  assert.ok(!css.includes('{{'));
+});
+
 test('index compila con y sin splash', () => {
   const v = valores(N);
   let html = readFileSync(URLS('../plantillas/index.plantilla.html'), 'utf8');

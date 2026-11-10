@@ -1,4 +1,7 @@
 // tools/replicar.js
+import { cpSync, mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { join } from 'node:path';
+
 export function render(plantilla, vals) {
   let out = plantilla;
   for (const [k, v] of Object.entries(vals)) out = out.split(`{{${k}}}`).join(String(v));
@@ -25,4 +28,32 @@ export function valores(n) {
     COLOR_FONDO: n.colores.fondo, COLOR_TEXTO: n.colores.texto,
     COLOR_PRIMARIO: n.colores.primario, COLOR_ACENTO: n.colores.acento,
   };
+}
+
+const ASSETS = ['img/logo-chef.png', 'img/hero/hero-1.jpg', 'img/hero/hero-2.jpg', 'img/hero/hero-3.jpg', 'img/hero/hero-4.jpg'];
+
+export function generar(origen, destino, n) {
+  mkdirSync(destino, { recursive: true });
+  cpSync(origen, destino, { recursive: true,
+    filter: (s) => !/\.git|node_modules|plantillas|tools|docs|negocio\.ejemplo\.json/.test(s) });
+  for (const a of ASSETS) {
+    if (!existsSync(join(destino, a))) throw new Error(`asset obligatorio ausente: ${a}`);
+  }
+  const v = valores(n);
+  const p = (f) => readFileSync(join(origen, 'plantillas', f), 'utf8');
+  let html = p('index.plantilla.html');
+  html = recortarBloque(html, 'SPLASH_SCRIPT', n.splash.activado);
+  html = recortarBloque(html, 'SPLASH', n.splash.activado);
+  writeFileSync(join(destino, 'index.html'), render(html, v));
+  writeFileSync(join(destino, 'estilos.css'), render(p('estilos.plantilla.css'), v));
+  writeFileSync(join(destino, 'app.js'), render(p('app.plantilla.js'), v));
+  writeFileSync(join(destino, 'analitica.js'), render(p('analitica.plantilla.js'), v));
+  writeFileSync(join(destino, 'config.js'), render(p('config.plantilla.js'), v));
+}
+
+if (process.argv[1] && process.argv[1].endsWith('replicar.js')) {
+  const [, , cfg, destino] = process.argv;
+  if (!cfg || !destino) { console.error('uso: node tools/replicar.js <negocio.json> <destino>'); process.exit(1); }
+  generar(new URL('..', import.meta.url).pathname, destino, JSON.parse(readFileSync(cfg, 'utf8')));
+  console.log(`Sitio generado en ${destino}`);
 }

@@ -1,7 +1,9 @@
 // tools/replicar.test.js
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, mkdtempSync, rmSync, writeFileSync, existsSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 const URLS = (r) => new URL(r, import.meta.url);
 
@@ -15,7 +17,7 @@ test('negocio.ejemplo.json tiene el contrato completo', () => {
   assert.match(n.whatsapp, /^58\d{10}$/);
 });
 
-import { render, recortarBloque, valores } from './replicar.js';
+import { render, recortarBloque, valores, generar } from './replicar.js';
 
 const N = JSON.parse(readFileSync(URLS('../negocio.ejemplo.json'), 'utf8'));
 
@@ -79,4 +81,27 @@ test('index compila con y sin splash', () => {
   const sin = render(html2, v);
   assert.ok(!sin.includes('splash-overlay'), 'el splash debió recortarse');
   assert.ok(sin.includes('app-cabeza'), 'la cabecera queda intacta');
+});
+
+test('generar produce el sitio completo de un negocio nuevo', () => {
+  const destino = mkdtempSync(join(tmpdir(), 'replica-'));
+  try {
+    const pollo = { ...N, slug: 'pollos-la-esquina', nombre: 'Pollos La Esquina', nombreCorto: 'POLLOS LA ESQUINA', whatsapp: '584141112233', instagram: 'polloslaesquina', sitioPosthog: 'pollos-la-esquina', splash: { ...N.splash, activado: false }, colores: { fondo: '#FFFFFF', texto: '#1A1A1A', primario: '#D97706', acento: '#0F766E' } };
+    generar(new URL('..', import.meta.url).pathname, destino, pollo);
+    const html = readFileSync(join(destino, 'index.html'), 'utf8');
+    assert.ok(html.includes('Pollos La Esquina') && html.includes('wa.me/584141112233'));
+    assert.ok(!html.includes('splash-overlay'), 'splash desactivado');
+    assert.ok(!html.includes('584124652676'), 'no queda el número viejo');
+    const css = readFileSync(join(destino, 'estilos.css'), 'utf8');
+    assert.ok(css.includes('--primario:#D97706') || css.includes('--primario: #D97706'));
+  } finally { rmSync(destino, { recursive: true, force: true }); }
+});
+
+test('generar falla si falta un asset obligatorio', () => {
+  const destino = mkdtempSync(join(tmpdir(), 'replica-'));
+  const origen = mkdtempSync(join(tmpdir(), 'origen-'));
+  try {
+    writeFileSync(join(origen, 'index.html'), 'x'); // origen sin img/
+    assert.throws(() => generar(origen, destino, N), /asset obligatorio/);
+  } finally { rmSync(destino, { recursive: true, force: true }); rmSync(origen, { recursive: true, force: true }); }
 });

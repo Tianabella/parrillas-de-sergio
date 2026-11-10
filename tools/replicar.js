@@ -35,7 +35,7 @@ const ASSETS = ['img/logo-chef.png', 'img/hero/hero-1.jpg', 'img/hero/hero-2.jpg
 export function generar(origen, destino, n) {
   mkdirSync(destino, { recursive: true });
   cpSync(origen, destino, { recursive: true,
-    filter: (s) => !/\.git|node_modules|plantillas|tools|docs|negocio\.ejemplo\.json/.test(s) });
+    filter: (s) => !/\.git|node_modules|plantillas|tools|docs|\.superpowers|negocio\.ejemplo\.json/.test(s) });
   for (const a of ASSETS) {
     if (!existsSync(join(destino, a))) throw new Error(`asset obligatorio ausente: ${a}`);
   }
